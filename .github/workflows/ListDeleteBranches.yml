@@ -39,7 +39,7 @@ jobs:
 
   manual-approval:
     needs: job2
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run.requested'
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run.requested' }}
     runs-on: ubuntu-latest
     steps:
       - name: Manual approval
