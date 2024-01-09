@@ -31,7 +31,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+        
+      - name: Ensure execute permissions for delete_branches.sh
+        run: chmod +x ./.github/scripts/delete_branches.sh
+        
       - name: Clone code repo and get old branches
         if: ${{ github.event.inputs.delete_mode == 'yes' }}
         run: ./.github/scripts/delete_branches.sh
