@@ -17,7 +17,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+        
+      - name: Ensure execute permissions for list_branches.sh
+        run: chmod +x ./.github/scripts/list_branches.sh
+        
       - name: List old branches and send email
         if: ${{ github.event.inputs.delete_mode == 'no' }}
         run: ./.github/scripts/list_branches.sh
