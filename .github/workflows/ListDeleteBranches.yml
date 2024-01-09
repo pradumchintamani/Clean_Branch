@@ -10,10 +10,6 @@ on:
         options:
           - 'yes'
           - 'no'
-  workflow_run:
-    workflows: ["Branch Cleanup Workflow"]
-    types:
-      - requested
 
 jobs:
   job1:
@@ -39,7 +35,7 @@ jobs:
 
   manual-approval:
     needs: job2
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run.completed' }}
+    if: ${{ github.event.inputs.delete_mode == 'yes' }}
     runs-on: ubuntu-latest
     steps:
       - name: Manual approval
@@ -51,5 +47,5 @@ jobs:
         shell: bash
 
       - name: Proceed with deletion
-        if: ${{ steps.approval.outputs.approved == 'yes' }}
+        if: ${{ needs.manual-approval.outputs.approved == 'yes' }}
         run: ./.github/scripts/delete_branches.sh
