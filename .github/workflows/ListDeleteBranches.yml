@@ -10,6 +10,10 @@ on:
         options:
           - 'yes'
           - 'no'
+  workflow_run:
+    workflows: ["Branch Cleanup Workflow"]
+    types:
+      - requested
 
 jobs:
   job1:
@@ -31,4 +35,21 @@ jobs:
 
       - name: Clone code repo and get old branches
         if: ${{ github.event.inputs.delete_mode == 'yes' }}
+        run: ./.github/scripts/delete_branches.sh
+
+  manual-approval:
+    needs: job2
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_run.requested'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Manual approval
+        id: approval
+        run: |
+          echo "Do you approve the deletion of branches? (yes/no)"
+          read approval_status
+          echo "::set-output name=approved::${approval_status}"
+        shell: bash
+
+      - name: Proceed with deletion
+        if: ${{ steps.approval.outputs.approved == 'yes' }}
         run: ./.github/scripts/delete_branches.sh
