@@ -25,22 +25,22 @@ jobs:
         if: ${{ github.event.inputs.delete_mode == 'no' }}
         run: ./.github/scripts/list_branches.sh
 
-  job2:
-    needs: job1
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # job2:
+  #   needs: job1
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
         
-      - name: Ensure execute permissions for delete_branches.sh
-        run: chmod +x ./.github/scripts/delete_branches.sh
+  #     - name: Ensure execute permissions for delete_branches.sh
+  #       run: chmod +x ./.github/scripts/delete_branches.sh
         
-      - name: Clone code repo and get old branches
-        if: ${{ github.event.inputs.delete_mode == 'yes' }}
-        run: ./.github/scripts/delete_branches.sh
+  #     # - name: Clone code repo and get old branches
+  #     #   if: ${{ github.event.inputs.delete_mode == 'yes' }}
+  #     #   run: ./.github/scripts/delete_branches.sh
 
   manual-approval:
-    needs: job2
+    needs: job1
     if: ${{ github.event.inputs.delete_mode == 'yes' }}
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +51,8 @@ jobs:
           read approval_status
           echo "::set-output name=approved::${approval_status}"
         shell: bash
-
+      - name: Ensure execute permissions for delete_branches.sh
+        run: chmod +x ./.github/scripts/delete_branches.sh
       - name: Proceed with deletion
         if: ${{ needs.manual-approval.outputs.approved == 'yes' }}
         run: ./.github/scripts/delete_branches.sh
