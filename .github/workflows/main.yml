@@ -1,0 +1,57 @@
+name: Branch Cleanup Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      delete_mode:
+        description: 'Run workflow in delete mode?'
+        required: true
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: List old branches and send email
+        if: ${{ github.event.inputs.delete_mode == 'no' }}
+        run: |
+          # Add your script/command to list branches older than x days
+          # Send the list to email addresses
+
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Clone code repo
+        if: ${{ github.event.inputs.delete_mode == 'yes' }}
+        run: |
+          # Add your script/command to clone the code repo
+          # Get the list of branches older than x days
+
+      - name: Approval step
+        if: ${{ github.event.inputs.delete_mode == 'yes' }}
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data } = await github.repos.getBranchProtection({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              branch: 'main', // Change to your main branch
+            });
+
+            if (data.required_pull_request_reviews) {
+              // Add your logic to send an approval notification or manually approve
+            } else {
+              // Proceed with branch deletion
+              // Add your script/command to delete branches older than x days
+            }
