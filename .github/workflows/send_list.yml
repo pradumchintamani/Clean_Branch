@@ -36,7 +36,7 @@ jobs:
         CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
         # Calculate the date x days ago
-        X_DAYS_AGO=$(date -u -d "$DAYS_OLD days ago" +%Y-%m-%dT%H:%M:%SZ")
+        X_DAYS_AGO=$(date -u -d "$DAYS_OLD days ago" +%Y-%m-%dT%H:%M:%SZ)
 
         # List branches older than x days
         BRANCHES=$(git for-each-ref --format '%(refname:short) %(committerdate:iso8601)' refs/heads | awk -v x_days_ago="$X_DAYS_AGO" '$2 < x_days_ago {print $1}')
