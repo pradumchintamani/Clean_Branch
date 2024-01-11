@@ -41,6 +41,6 @@ jobs:
     - name: Send Stale Branches Email
       run: |
         staleBranches=${{ needs.find_stale_branches.outputs.staleBranches }}
-        echo "Subject: Stale Branches Report" | sudo sendmail -v your_email@example.com
-        echo "Stale branches older than ${{ github.event.inputs.staleDays }} days:" | sudo sendmail -v your_email@example.com
-        echo "${staleBranches}" | sudo sendmail -v your_email@example.com
+        echo "Subject: Stale Branches Report" | sudo sendmail -v pradhumnchintamani@gmail.com
+        echo "Stale branches older than ${{ github.event.inputs.staleDays }} days:" | sudo sendmail -v pradhumnchintamani@gmail.com
+        echo "${staleBranches}" | sudo sendmail -v pradhumnchintamani@gmail.com
