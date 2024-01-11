@@ -1,0 +1,69 @@
+name: Branch Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      days_old:
+        description: 'Number of days old for branches'
+        required: true
+      delete_mode:
+        description: 'Run workflow in delete mode?'
+        required: true
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+
+jobs:
+  branch-cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Git
+      run: |
+        git config --global user.email "pradhumnchintamani@gmail.com"
+        git config --global user.name "pradumchintamani"
+
+    - name: List and Filter Branches
+      run: |
+        # Input: Number of days
+        DAYS_OLD=${{ inputs.days_old }}
+        
+        # Get the current date
+        CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+        # Calculate the date x days ago
+        X_DAYS_AGO=$(date -u -d "$DAYS_OLD days ago" +%Y-%m-%dT%H:%M:%SZ")
+
+        # List branches older than x days
+        BRANCHES=$(git for-each-ref --format '%(refname:short) %(committerdate:iso8601)' refs/heads | awk -v x_days_ago="$X_DAYS_AGO" '$2 < x_days_ago {print $1}')
+
+        # Exclude specified branches
+        EXCLUDE_BRANCHES="main develop master $(cat ignore_branch.txt)"
+        BRANCHES=$(echo "$BRANCHES" | grep -Ev "$EXCLUDE_BRANCHES")
+
+        echo "Branches to be cleaned up: $BRANCHES"
+        echo "::set-output name=branches_to_cleanup::$BRANCHES"
+
+    - name: Create Issue for Cleanup
+      if: ${{ steps.branch-cleanup.outputs.branches_to_cleanup != '' }}
+      run: |
+        BRANCHES_TO_CLEANUP="${{ steps.branch-cleanup.outputs.branches_to_cleanup }}"
+        
+        # Create a GitHub issue
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/issues \
+          -d '{"title": "Branch Cleanup Report", "body": "The following branches are older than x days and eligible for cleanup:\n\n'"$BRANCHES_TO_CLEANUP"'"}'
+
+    - name: Send Email
+      if: ${{ steps.branch-cleanup.outputs.branches_to_cleanup != '' }}
+      run: |
+        BRANCHES_TO_CLEANUP="${{ steps.branch-cleanup.outputs.branches_to_cleanup }}"
+        
+        # Send an email using sendmail command
+        echo -e "Subject: Branch Cleanup Report\n\nThe following branches are older than x days and eligible for cleanup:\n\n$BRANCHES_TO_CLEANUP" | sendmail pradhumnchintamani@gmail.com
