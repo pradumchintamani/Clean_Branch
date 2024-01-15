@@ -1,6 +1,7 @@
 name: Branch Cleanup Workflow
 
 on:
+  workflow_call:
   workflow_dispatch:
     inputs:
       delete_mode:
