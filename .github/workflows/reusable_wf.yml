@@ -1,11 +1,12 @@
 name: Identify Old Branches
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       days:
         description: 'Number of days to consider branches as old'
         required: true
+        type: string
 
 jobs:
   identify-old-branches:
@@ -39,6 +40,12 @@ jobs:
           # Define branches to ignore
           IGNORED_BRANCHES+=("main" "develop" "master")
 
+          # Output file
+          OUTPUT_FILE="old_branches.txt"
+
+          # Clear the content of the output file
+          > $OUTPUT_FILE
+
           # Loop through branches
           for BRANCH in $BRANCHES; do
             BRANCH_NAME=$(echo $BRANCH | awk '{gsub(/origin\//,"")}1')
@@ -61,7 +68,7 @@ jobs:
 
             # Check if the branch is older than x days
             if [ $DIFF_DAYS -gt $DAYS ]; then
-              echo "Branch $BRANCH_NAME is older than $DAYS days."
+              echo "Branch $BRANCH_NAME is older than $DAYS days." >> $OUTPUT_FILE
             fi
           done
         env:
