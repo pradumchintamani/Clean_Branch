@@ -10,10 +10,6 @@ on:
 
 jobs:
   main-job:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Trigger Identify Old Branches
-        uses: pradumchintamani/Clean_Branch/.github/workflows/reusable_wf.yml@main
-        with:
+    uses: pradumchintamani/Clean_Branch/.github/workflows/reusable_wf.yml@main
+    with:
           days: ${{ github.event.inputs.days }}
