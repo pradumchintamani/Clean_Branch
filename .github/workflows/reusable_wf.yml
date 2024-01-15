@@ -24,7 +24,7 @@ jobs:
       - name: Run Script
         run: |
           #!/bin/bash
-
+          set -x
           # Get the user input for the number of days
           DAYS=${{ github.event.inputs.days }}
 
