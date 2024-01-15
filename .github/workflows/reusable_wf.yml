@@ -1,0 +1,68 @@
+name: Identify Old Branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Number of days to consider branches as old'
+        required: true
+
+jobs:
+  identify-old-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Bash
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Run Script
+        run: |
+          #!/bin/bash
+
+          # Get the user input for the number of days
+          DAYS=${{ github.event.inputs.days }}
+
+          # Get the current date in seconds
+          CURRENT_DATE=$(date +%s)
+
+          # Get the list of branches from Git
+          BRANCHES=$(git branch -r --format '%(refname:short)')
+
+          # Read the ignored branches from the file
+          IFS=$'\n' read -d '' -r -a IGNORED_BRANCHES < ignore_branch.txt
+
+          # Define branches to ignore
+          IGNORED_BRANCHES+=("main" "develop" "master")
+
+          # Loop through branches
+          for BRANCH in $BRANCHES; do
+            BRANCH_NAME=$(echo $BRANCH | awk '{gsub(/origin\//,"")}1')
+
+            # Check if the branch is in the ignore list
+            if [[ " ${IGNORED_BRANCHES[@]} " =~ " ${BRANCH_NAME} " ]]; then
+              continue
+            fi
+
+            # Check if the branch is merged
+            if [[ -z $(git log --merges -n 1 $BRANCH_NAME 2>/dev/null) ]]; then
+              continue
+            fi
+
+            # Get the last commit date of the branch in seconds
+            LAST_COMMIT_DATE=$(git log -n 1 --format="%at" $BRANCH_NAME)
+
+            # Calculate the difference in days
+            DIFF_DAYS=$((($CURRENT_DATE - $LAST_COMMIT_DATE) / (60 * 60 * 24)))
+
+            # Check if the branch is older than x days
+            if [ $DIFF_DAYS -gt $DAYS ]; then
+              echo "Branch $BRANCH_NAME is older than $DAYS days."
+            fi
+          done
+        env:
+          DAYS: ${{ github.event.inputs.days }}
