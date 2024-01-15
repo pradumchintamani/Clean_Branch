@@ -1,0 +1,19 @@
+name: Your Main Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Number of days to consider branches as old'
+        required: true
+        type: string
+
+jobs:
+  main-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Identify Old Branches
+        uses: .github/workflows/reusable_wf.yml@reusable_wf
+        with:
+          days: ${{ github.event.inputs.days }}
