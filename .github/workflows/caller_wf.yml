@@ -1,4 +1,4 @@
-name: Your Main Workflow
+name: List Old Branch 
 
 on:
   workflow_dispatch:
