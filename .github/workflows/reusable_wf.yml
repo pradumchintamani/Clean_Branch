@@ -35,7 +35,7 @@ jobs:
           BRANCHES=$(git branch -r --format '%(refname:short)')
 
           # Read the ignored branches from the file
-          IFS=$'\n' read -d '' -r -a IGNORED_BRANCHES < ignore_branch.txt
+          # IFS=$'\n' read -d '' -r -a IGNORED_BRANCHES < ignore_branch.txt
 
           # Define branches to ignore
           IGNORED_BRANCHES+=("main" "develop" "master")
