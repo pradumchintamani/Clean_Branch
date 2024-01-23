@@ -22,4 +22,5 @@ jobs:
 
         # Run the PowerShell script with the correct path
         # cd .github/scripts
+        chmod +x check-branches.ps1
         .\check-branches.ps1
