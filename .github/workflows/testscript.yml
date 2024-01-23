@@ -17,10 +17,10 @@ jobs:
     - name: Run PowerShell Script
       shell: pwsh 
       run: |
-        # Set the threshold days as an environment variable
+        
         $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
-        GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}
-        # Run the PowerShell script with the correct path
+        # GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}
+        
         cd .github/scripts
         chmod +x check-branches.ps1
         # pwsh -File ./check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
