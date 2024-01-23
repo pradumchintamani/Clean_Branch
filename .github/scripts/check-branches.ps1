@@ -1,4 +1,4 @@
-git branch -r
+git branch -vva
 
 # param (
 #     [Parameter(Mandatory=$true)]
