@@ -2,10 +2,10 @@ name: Check Branches
 
 on:
   workflow_dispatch:
-    inputs:
-      thresholdDays:
-        description: 'Threshold days for branch age'
-        required: true
+    # inputs:
+    #   thresholdDays:
+    #     description: 'Threshold days for branch age'
+    #     required: true
 
 jobs:
   check-branches:
@@ -18,8 +18,8 @@ jobs:
       shell: pwsh
       run: |
         # Set the threshold days as an environment variable
-        $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
+        # $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
 
         # Run the PowerShell script with the correct path
-        cd .github/scripts
+        # cd .github/scripts
         .\check-branches.ps1
