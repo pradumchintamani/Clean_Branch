@@ -18,8 +18,8 @@ jobs:
       shell: pwsh
       run: |
         # Set the threshold days as an environment variable
-        # $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
-
+        $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
+        $env:GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}
         # Run the PowerShell script with the correct path
         cd .github/scripts
         chmod +x check-branches.ps1
