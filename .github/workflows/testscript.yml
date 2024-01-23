@@ -25,7 +25,8 @@ jobs:
           #!/bin/bash
           threshold_date=$(date -d "-${{ github.event.inputs.days}} days" --utc +%Y-%m-%dT%H:%M:%SZ)
 
-          branches=$(git for-each-ref --format '%(refname:short) %(committerdate:iso8061)' ref/heads/ | awk -v threshold="$threshold_date" '$2< threshold {print $1}')
+          # branches=$(git for-each-ref --format '%(refname:short) %(committerdate:iso8061)' ref/heads/ | awk -v threshold="$threshold_date" '$2< threshold {print $1}')
+          branches=$(git for-each-ref --sort=committerdate refs/heads/--format '%(committerdate:iso8061) %(refname:short)'  | awk -v threshold="$threshold_date" '$1< threshold {print $2}')
 
           echo "Branches older than ${{github.event.inputs.days}} days:"
           echo "$branches"
