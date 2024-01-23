@@ -20,4 +20,4 @@ jobs:
       with:
         script: 
           $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
-          .\check-branches.ps1
+          .\scripts\check-branches.ps1
