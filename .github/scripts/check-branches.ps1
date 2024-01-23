@@ -14,7 +14,7 @@ $headers = @{
     Authorization = "Bearer $token"
 }
 
-$branchesUrl = "https://api.github.com/repos/$repoOwner/$repoName/branches"
+$branchesUrl = "https://api.github.com/repos/$repoOwner/$repoName/branches?access_token=$($env:GITHUB_TOKEN)""
 $branches = Invoke-RestMethod -Uri $branchesUrl -Headers $headers
 
 # Get current date
