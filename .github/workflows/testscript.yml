@@ -1,33 +1,25 @@
+name: Check Branches
+
 on:
-  workflow_dispatch: 
-  # workflow_call:
+  workflow_dispatch:
     inputs:
-      days:
-        description: 'Number of days to consider branches as old'
+      thresholdDays:
+        description: 'Threshold days for branch age'
         required: true
-        type: string
 
 jobs:
-  identify-old-branches:
+  check-branches:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: Set up Bash
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+    - name: Run PowerShell Script
+      shell: pwsh
+      run: |
+        # Set the threshold days as an environment variable
+        $env:THRESHOLD_DAYS = "${{ github.event.inputs.thresholdDays }}"
 
-      - name: Run Script
-        run: |
-          #!/bin/bash
-          threshold_date=$(date -d "-${{ github.event.inputs.days}} days" --utc +%Y-%m-%dT%H:%M:%SZ)
-
-          # branches=$(git for-each-ref --format '%(refname:short) %(committerdate:iso8061)' ref/heads/ | awk -v threshold="$threshold_date" '$2< threshold {print $1}')
-          branches=$(git for-each-ref --sort=committerdate refs/heads/--format '%(committerdate:iso8061) %(refname:short)'  | awk -v threshold="$threshold_date" '$1< threshold {print $2}')
-
-          echo "Branches older than ${{github.event.inputs.days}} days:"
-          echo "$branches"
-        
+        # Run the PowerShell script
+        .github/scripts/check-branches.ps1
