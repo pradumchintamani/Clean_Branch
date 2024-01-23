@@ -16,7 +16,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Run PowerShell Script
       shell: pwsh 
-        GITHUB_TOKEN = ${{ secrets.REPO_TOKEN }}
       run: |
         # Set the threshold days as an environment variable
         $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
