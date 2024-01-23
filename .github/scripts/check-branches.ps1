@@ -1,4 +1,3 @@
-git branch -vva
 
 param (
     [Parameter(Mandatory=$true)]
