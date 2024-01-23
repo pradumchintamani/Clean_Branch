@@ -21,4 +21,5 @@ jobs:
         $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
 
         # Run the PowerShell script with the correct path
-        .\scripts\check-branches.ps1
+        cd .github/scripts
+        .\check-branches.ps1
