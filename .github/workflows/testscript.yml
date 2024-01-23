@@ -23,4 +23,5 @@ jobs:
         # Run the PowerShell script with the correct path
         cd .github/scripts
         chmod +x check-branches.ps1
-        .\check-branches.ps1
+        pwsh -File ./check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
+        # .\check-branches.ps1
