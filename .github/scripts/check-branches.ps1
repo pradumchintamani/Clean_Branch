@@ -1,32 +1,34 @@
-param (
-    [Parameter(Mandatory=$true)]
-    [int]$thresholdDays
-)
+git branch -r
 
-# GitHub API endpoint for branches
-$repoOwner = "pradumchintamani"
-$repoName = "Clean_Branch"
-$token = $env:GITHUB_TOKEN  # GITHUB_TOKEN is automatically provided by GitHub Actions
+# param (
+#     [Parameter(Mandatory=$true)]
+#     [int]$thresholdDays
+# )
 
-# Get the list of branches using GitHub API
-$headers = @{
-    Authorization = "Bearer $token"
-}
+# # GitHub API endpoint for branches
+# $repoOwner = "pradumchintamani"
+# $repoName = "Clean_Branch"
+# $token = $env:GITHUB_TOKEN  # GITHUB_TOKEN is automatically provided by GitHub Actions
 
-$branchesUrl = "https://api.github.com/repos/$repoOwner/$repoName/branches"
-$branches = Invoke-RestMethod -Uri $branchesUrl -Headers $headers
+# # Get the list of branches using GitHub API
+# $headers = @{
+#     Authorization = "Bearer $token"
+# }
 
-# Get current date
-$currentDate = Get-Date
+# $branchesUrl = "https://api.github.com/repos/$repoOwner/$repoName/branches"
+# $branches = Invoke-RestMethod -Uri $branchesUrl -Headers $headers
 
-# Filter branches based on last commit date
-foreach ($branch in $branches) {
-    $lastCommitUrl = $branch.commit.url
-    $lastCommit = Invoke-RestMethod -Uri $lastCommitUrl -Headers $headers
-    $lastCommitDate = [datetime]$lastCommit.commit.author.date
-    $daysDifference = ($currentDate - $lastCommitDate).Days
+# # Get current date
+# $currentDate = Get-Date
 
-    if ($daysDifference -gt $thresholdDays) {
-        Write-Host "Branch $($branch.name) is older than $thresholdDays days (Last commit on $($lastCommitDate.ToShortDateString()))."
-    }
-}
+# # Filter branches based on last commit date
+# foreach ($branch in $branches) {
+#     $lastCommitUrl = $branch.commit.url
+#     $lastCommit = Invoke-RestMethod -Uri $lastCommitUrl -Headers $headers
+#     $lastCommitDate = [datetime]$lastCommit.commit.author.date
+#     $daysDifference = ($currentDate - $lastCommitDate).Days
+
+#     if ($daysDifference -gt $thresholdDays) {
+#         Write-Host "Branch $($branch.name) is older than $thresholdDays days (Last commit on $($lastCommitDate.ToShortDateString()))."
+#     }
+# }
