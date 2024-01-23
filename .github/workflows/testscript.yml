@@ -1,11 +1,11 @@
 on:
   workflow_dispatch: 
   # workflow_call:
-  #   inputs:
-  #     days:
-  #       description: 'Number of days to consider branches as old'
-  #       required: true
-  #       type: string
+    inputs:
+      days:
+        description: 'Number of days to consider branches as old'
+        required: true
+        type: string
 
 jobs:
   identify-old-branches:
@@ -22,8 +22,10 @@ jobs:
 
       - name: Run Script
         run: |
-          $branch = git for-each-ref --shell \
-            --format='git log --oneline %(refname) ^origin/master' \
-            refs/heads/
+          threshold_date=$(date -d "-${{ github.event.inputs.days}} days" --utc +%Y-%m-%dT%H:%M:%SZ)
 
-          echo "$branch"
+          branches=$(git for-each-ref --format '%(refname:short) %(commiterdate:iso8061)' ref/heads/ | awk -v threshold="$threshold_date" '$2< threshold {print $1}')
+
+          echo Branches older than ${{github.event.inputs.days}} days:"
+          echo "$branches"
+        shell: bash
