@@ -1,0 +1,91 @@
+name: Stale Branch Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_delete_mode:
+        type: string
+        description: 'Run in delete mode?'
+        required: true
+        default: 'no'
+        
+      stale_branch_days:
+        type: string
+        description: 'Number of days to consider a branch stale'
+        required: true
+        default: '3'
+permissions: write-all
+jobs:
+  list_stale_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: List Stale Branches
+        run: |
+
+            $stale_days = ${{ github.event.inputs.stale_branch_days }} 
+            $outputFilePath = "stale_branches_output.txt"
+            
+            # Get the list of remote branches with the last commit date
+            $branches = git branch -r | ForEach-Object {
+            $branch = $_.Trim()
+            
+            # Skip branches with unexpected format
+                if ($branch -like '* -> *') {
+                    Write-Host "Skipping branch with unexpected format: $branch"
+                    return
+                }
+                # Skip the 'origin/HEAD' branch
+                if ($branch -eq 'origin/HEAD') {
+                    return
+                }
+                $lastCommitDate = git log -1 --format="%cd" --date=iso8601 $branch
+                try {
+                    $date = Get-Date $lastCommitDate -ErrorAction Stop
+                    [PSCustomObject]@{
+                        Branch = $branch
+                        LastCommitDate = $date
+                    }
+                }
+                catch {
+                    Write-Host "Error parsing date for branch: $branch. Date: $lastCommitDate. Error: $_"
+                }
+            }
+            # Filter branches older than $stale_days
+            $stale_branches = $branches | Where-Object { $_.LastCommitDate -ne $null -and (Get-Date) - $_.LastCommitDate -gt [TimeSpan]::FromDays($stale_days) }
+            
+            # Display the list of stale branches
+            Write-Host "$stale_branches"
+            $stale_branches | Format-Table -AutoSize | Out-File -Append -FilePath $outputFilePath
+            
+            Write-Host "Output saved to $outputFilePath"
+            # Upload-File -Path $outputFilePath -Name "stale_branches_output"
+             
+
+        shell: pwsh
+
+      - name: Commit artifact changes
+        run: |
+              git config --local user.name "GitHub Actions"
+              git config --local user.email "actions@github.com"
+              git add .
+              git commit -m "Add stale branches output"
+              git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
+              git push --set-upstream origin $GITHUB_REF
+   
+      - name: Persist workspace
+        uses: actions/cache@v4.0.0
+        with:
+          path: |
+              # ${{ runner.workspace }}/stale_branches_output.txt
+              ${{ runner.workspace }}
+          key: stale-branches-${{ runner.os }}
+  
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.3.0
+        with:
+          name: stale_branches_output
+          # path: ${{ runner.workspace }}/stale_branches_output.txt
+          path: ${{ runner.workspace }}
