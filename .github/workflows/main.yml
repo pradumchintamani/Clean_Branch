@@ -67,6 +67,7 @@ jobs:
         shell: pwsh
 
       - name: Commit artifact changes
+        continue-on-error: true
         run: |
               git config --local user.name "GitHub Actions"
               git config --local user.email "actions@github.com"
