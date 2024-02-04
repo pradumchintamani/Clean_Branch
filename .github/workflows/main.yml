@@ -54,13 +54,13 @@ jobs:
             
         shell: pwsh  
         
-      - name: Write stale branches to the output file
-        run: |
-            # Write stale branches to the output file
-            $stale_branches | Format-Table -AutoSize | Out-File -FilePath $outputFilePath
-            Write-Host "$stale_branches"
-            Write-Host "Output saved to $outputFilePath"
-        shell: pwsh
+      # - name: Write stale branches to the output file
+      #   run: |
+      #       # Write stale branches to the output file
+      #       $stale_branches | Format-Table -AutoSize | Out-File -FilePath $outputFilePath
+      #       Write-Host "$stale_branches"
+      #       Write-Host "Output saved to $outputFilePath"
+      #   shell: pwsh
 
       - name: Commit artifact changes
         continue-on-error: true
