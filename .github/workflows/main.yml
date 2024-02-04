@@ -64,7 +64,7 @@ jobs:
             
             # Write stale branches to the output file
             $stale_branches | Format-Table -AutoSize | Out-File -FilePath $outputFilePath
-            echo "stale_branches"
+            echo "$stale_branches"
             Write-Host "Output saved to $outputFilePath"
              
 
