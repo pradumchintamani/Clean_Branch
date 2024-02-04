@@ -26,7 +26,6 @@ jobs:
         run: |
 
             $stale_days = ${{ github.event.inputs.stale_branch_days }} 
-             
             $outputFilePath = "stale_branches_output.txt"
             
             # Get the list of remote branches with the last commit date
@@ -58,15 +57,16 @@ jobs:
             # Filter branches older than $stale_days
             $stale_branches = $branches | Where-Object { $_.LastCommitDate -ne $null -and (Get-Date) - $_.LastCommitDate -gt [TimeSpan]::FromDays($stale_days) }
             
-            # Display and write stale branches to the output file
+            # Display the list of stale branches
             foreach ($branch in $stale_branches) {
-                $displayString = "Stale Branch: $($branch.Branch), Last Commit Date: $($branch.LastCommitDate)"
-                Write-Host $displayString
-                $displayString | Out-File -Append -FilePath $outputFilePath
+                Write-Host "Stale Branch: $($branch.Branch), Last Commit Date: $($branch.LastCommitDate)"
             }
             
+            # Write stale branches to the output file
+            $stale_branches | Format-Table -AutoSize | Out-File -FilePath $outputFilePath
+            echo "stale_branches"
             Write-Host "Output saved to $outputFilePath"
-
+             
 
         shell: pwsh
 
