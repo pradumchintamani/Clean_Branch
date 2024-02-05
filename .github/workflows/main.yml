@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: List Stale Branches
+        shell: pwsh
         run: |
             $stale_days = ${{ github.event.inputs.stale_branch_days }} 
             $outputFilePath = "stale_branches_output.txt"
@@ -47,12 +48,13 @@ jobs:
                     Write-Host "Error parsing date for branch: $branch. Date: $lastCommitDate. Error: $_"
                 }
             }
+            Write-Host "$branch"
             $stale_branches = $branches | Where-Object { $_.LastCommitDate -ne $null -and (Get-Date) - $_.LastCommitDate -gt [TimeSpan]::FromDays($stale_days) }
-            Write-Host "$stale_branches"
+            Write-Host $stale_branches
             $stale_branches | Format-Table -AutoSize
             			
             
-        shell: pwsh  
+          
         
       # - name: Write stale branches to the output file
       #   run: |
