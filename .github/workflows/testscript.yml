@@ -32,7 +32,9 @@ jobs:
                 # Compare the commit date with the date two days ago
                 if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"2 days ago" +%s)" ]]; then
                   echo $branch
+                  $branch >> stale.txt
                 fi
+                
               done
     # - name: Run PowerShell Script
     #   shell: pwsh 
