@@ -15,13 +15,30 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
     - name: Run PowerShell Script
-      shell: pwsh 
       run: |
+              #!/bin/bash
+              # Replace with your GitHub username and repository
+              username="manulife-gwam"
+              repo="cdn-institutional-grs-member-portal-react"
+              # Get all branches
+              branches=$(gh api repos/$username/$repo/branches -q ".[].name")
+              # Loop through each branch
+              for branch in $branches; do
+                # Get the last commit date for the branch
+                commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
+                # Compare the commit date with the date two days ago
+                if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"2 days ago" +%s)" ]]; then
+                  echo $branch
+                fi
+              done
+    # - name: Run PowerShell Script
+    #   shell: pwsh 
+    #   run: |
         
-        $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
-        # GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}
+    #     $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
+    #     # GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}
         
-        cd .github/scripts
-        chmod +x check-branches.ps1
-        # pwsh -File ./check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
-        .\check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
+    #     cd .github/scripts
+    #     chmod +x check-branches.ps1
+    #     # pwsh -File ./check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
+    #     .\check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
