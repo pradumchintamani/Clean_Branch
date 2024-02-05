@@ -1,0 +1,26 @@
+trigger:
+- '*'
+
+pr:
+- '*'
+
+jobs:
+- job: DisplayPullRequestInfo
+  displayName: 'Display Pull Request Information'
+  pool:
+    vmImage: 'windows-latest'
+
+  steps:
+  - powershell: |
+      $pullRequestId = 123  # Replace with the actual pull request ID
+      $url = "$(System.CollectionUri)$(System.TeamProject)/_apis/pullRequest/$($pullRequestId)?api-version=7.1-preview.1"
+
+      $result = Invoke-RestMethod -Uri $url -Method Get -Headers @{
+        Authorization = "Bearer $(System.AccessToken)"
+      }
+
+      Write-Host "Pull Request ID: $($result.pullRequestId)"
+      Write-Host "Source Branch: $($result.sourceRefName)"
+      Write-Host "Target Branch: $($result.targetRefName)"
+      # Add more fields as needed
+    displayName: 'Display Pull Request Information'
