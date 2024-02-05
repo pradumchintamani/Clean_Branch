@@ -21,8 +21,8 @@ jobs:
             #!/bin/bash
              
               # Replace with your GitHub username and repository
-              username="manulife-gwam"
-              repo="cdn-institutional-grs-member-portal-react"
+              username="pradumchintamani"
+              repo="Clean_Branch"
               # Get all branches
               branches=$(gh api repos/$username/$repo/branches -q ".[].name")
               # Loop through each branch
