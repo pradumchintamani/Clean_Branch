@@ -1,0 +1,29 @@
+trigger:
+- '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ListChangedFiles
+  steps:
+  - checkout: self
+
+  - script: |
+      organization="myfirstdevopsproject99"
+      project="BuildDeploy"
+      repository="BuildDeploy"
+      pullRequestId=$(System.PullRequest.PullRequestId)
+
+      # Personal Access Token (replace with your token)
+      pat="YourPersonalAccessToken"
+
+      # Make the API request to get pull request changes
+      url="https://dev.azure.com/$organization/$project/_apis/git/repositories/$repository/pullRequests/$pullRequestId/changes?api-version=7.1"
+      response=$(curl -s -u :$pat $url)
+
+      # Extract and print the list of changed files
+      files=$(echo $response | jq -r '.changes[].item.path')
+      echo "Changed Files:"
+      echo "$files"
+    displayName: 'List Changed Files'
