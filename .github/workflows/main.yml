@@ -18,6 +18,8 @@ permissions: write-all
 jobs:
   list_stale_branch:
     runs-on: windows-latest
+    env: 
+      WORKFLOW_PAT: ${{ secrets.GET_ALL }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
