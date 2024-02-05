@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Run Bash Script
       env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GET_ALL }}
       run: |
             #!/bin/bash
              
