@@ -29,3 +29,4 @@ jobs:
         done
       env:
         INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
+        GH_TOKEN: ${{secrets.GET_ALL}}
