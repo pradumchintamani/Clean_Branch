@@ -25,6 +25,7 @@ jobs:
           commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
           if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"$INPUT_DAYS_SINCE_LAST_COMMIT days ago" +%s)" ]]; then
             echo $branch
+            echo $branch >> $GITHUB_WORKSPACE/$output_file
           fi
         done
       env:
