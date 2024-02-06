@@ -1,8 +1,4 @@
-hotfix
-master
-reusable_wf
-sample1
-sample2
+develop
 hotfix
 master
 reusable_wf
