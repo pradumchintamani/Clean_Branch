@@ -93,7 +93,7 @@ jobs:
         for branch in $branches; do
           echo "Deleting branch: $branch"
           # Uncomment the following line to perform actual deletion
-          # git push --delete origin $branch
+          git push --delete origin $branch
         done
       env:
         INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}    
