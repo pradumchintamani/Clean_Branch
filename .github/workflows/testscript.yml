@@ -22,7 +22,7 @@ jobs:
       run: |
         username="pradumchintamani"
         repo="Clean_Branch"
-        echo -n > "$output_file"
+        
         branches=$(gh api repos/$username/$repo/branches -q ".[].name")
         for branch in $branches; do
           commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
@@ -37,6 +37,7 @@ jobs:
     - name: Commit artifact changes
       continue-on-error: true
       run: |
+              echo -n > "$output_file"
               git config --local user.name "GitHub Actions"
               git config --local user.email "actions@github.com"
               git add .
