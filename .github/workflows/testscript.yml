@@ -26,8 +26,7 @@ jobs:
         excluded_branches=()
           while IFS= read -r line; do
             excluded_branches+=( "$line" )
-          # done < input_file.txt
-          done
+          done < input_file.txt
           
           branches=$(gh api repos/$username/$repo/branches -q ".[].name")
           for branch in $branches; do
@@ -40,7 +39,7 @@ jobs:
             # If the branch is not excluded, check if it's old enough for deletion
             commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
             if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"$INPUT_DAYS_SINCE_LAST_COMMIT days ago" +%s)" ]]; then
-              echo $branch >> "$output_file"
+              echo $branch >> output_file.txt
             fi
           done
       env:
