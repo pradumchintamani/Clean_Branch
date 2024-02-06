@@ -26,7 +26,8 @@ jobs:
         excluded_branches=()
           while IFS= read -r line; do
             excluded_branches+=( "$line" )
-          done < input_file.txt
+          # done < input_file.txt
+          done
           
           branches=$(gh api repos/$username/$repo/branches -q ".[].name")
           for branch in $branches; do
