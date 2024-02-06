@@ -3,47 +3,41 @@ name: Check Branches
 on:
   workflow_dispatch:
     inputs:
-      thresholdDays:
-        description: 'Threshold days for branch age'
+      days:
+        description: 'Number of days to consider branches as old'
         required: true
+        type: string
 
 jobs:
-  check-branches:
+  check_branches:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository
       uses: actions/checkout@v2
-    - name: Run Bash Script
-      env:
-          GH_TOKEN: ${{ secrets.GET_ALL }}
+
+    - name: Set up Bash
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install GitHub CLI
       run: |
-            #!/bin/bash
-             
-              # Replace with your GitHub username and repository
-              username="pradumchintamani"
-              repo="Clean_Branch"
-              # Get all branches
-              branches=$(gh api repos/$username/$repo/branches -q ".[].name")
-              # Loop through each branch
-              for branch in $branches; do
-                # Get the last commit date for the branch
-                commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
-                # Compare the commit date with the date two days ago
-                if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"2 days ago" +%s)" ]]; then
-                  echo $branch
-                  $branch >> stale.txt
-                fi
-                
-              done
-    # - name: Run PowerShell Script
-    #   shell: pwsh 
-    #   run: |
-        
-    #     $env:THRESHOLD_DAYS = ${{ github.event.inputs.thresholdDays }}
-    #     # GITHUB_TOKEN = ${{ secrets.GITHUB_TOKEN }}
-        
-    #     cd .github/scripts
-    #     chmod +x check-branches.ps1
-    #     # pwsh -File ./check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
-    #     .\check-branches.ps1 -thresholdDays $env:THRESHOLD_DAYS
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+        sudo apt-add-repository https://cli.github.com/packages
+        sudo apt update
+        sudo apt install gh
+
+    - name: Run script to check branches
+      run: |
+        username="pradumchintamani"
+        repo="Clean_Branch"
+        branches=$(gh api repos/$username/$repo/branches -q ".[].name")
+        for branch in $branches; do
+          commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
+          if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"$INPUT_DAYS_SINCE_LAST_COMMIT days ago" +%s)" ]]; then
+            echo $branch
+          fi
+        done
+      env:
+        INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
