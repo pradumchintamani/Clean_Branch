@@ -1,4 +1,1 @@
-master
-reusable_wf
-sample1
 sample2
