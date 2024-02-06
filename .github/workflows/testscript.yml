@@ -7,10 +7,12 @@ on:
         description: 'Number of days to consider branches as old'
         required: true
         type: string
-
+permissions: write-all
 jobs:
   check_branches:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{secrets.GET_ALL}}
 
     steps:
     - name: Checkout repository
