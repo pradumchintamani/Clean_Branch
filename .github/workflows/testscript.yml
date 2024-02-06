@@ -28,6 +28,7 @@ jobs:
             # echo $branch
             echo $branch >> output_file.txt
           fi
+          gh repo upload pradumchintamani/Clean_Branch output_file.txt
         done
       env:
         INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
