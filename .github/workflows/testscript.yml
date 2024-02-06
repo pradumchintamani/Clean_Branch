@@ -23,14 +23,25 @@ jobs:
         username="pradumchintamani"
         repo="Clean_Branch"
         echo -n > output_file.txt
-        branches=$(gh api repos/$username/$repo/branches -q ".[].name")
-        for branch in $branches; do
-          commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
-          if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"$INPUT_DAYS_SINCE_LAST_COMMIT days ago" +%s)" ]]; then
-            # echo $branch
-            echo $branch >> output_file.txt
-          fi
-        done
+        excluded_branches=()
+          while IFS= read -r line; do
+            excluded_branches+=( "$line" )
+          done < "$input_branch_file"
+          
+          branches=$(gh api repos/$username/$repo/branches -q ".[].name")
+          for branch in $branches; do
+            # Check if the branch is excluded
+            if [[ " ${excluded_branches[@]} " =~ " $branch " ]]; then
+              echo "Excluded branch: $branch"
+              continue
+            fi
+            
+            # If the branch is not excluded, check if it's old enough for deletion
+            commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
+            if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"$INPUT_DAYS_SINCE_LAST_COMMIT days ago" +%s)" ]]; then
+              echo $branch >> "$output_file"
+            fi
+          done
       env:
         INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
         GH_TOKEN: ${{secrets.GET_ALL}}
