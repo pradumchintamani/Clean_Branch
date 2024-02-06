@@ -35,7 +35,15 @@ jobs:
       env:
         INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
         GH_TOKEN: ${{secrets.GET_ALL}}
-        
+    - name: Commit artifact changes
+      continue-on-error: true
+      run: |
+              git config --local user.name "GitHub Actions"
+              git config --local user.email "actions@github.com"
+              git add .
+              git commit -m "Add stale branches output"
+              git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
+              git push --set-upstream origin $GITHUB_REF    
     - name: Persist workspace
       uses: actions/cache@v4.0.0
       with:
