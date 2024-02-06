@@ -22,7 +22,7 @@ jobs:
       run: |
         username="pradumchintamani"
         repo="Clean_Branch"
-        # output_file="branches_output.txt"
+        echo -n > "$output_file"
         branches=$(gh api repos/$username/$repo/branches -q ".[].name")
         for branch in $branches; do
           commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
