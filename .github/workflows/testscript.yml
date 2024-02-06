@@ -7,6 +7,10 @@ on:
         description: 'Number of days to consider branches as old'
         required: true
         type: string
+      dry_run:
+        description: 'Whether to perform a dry run (true/false)'
+        required: false
+        type: boolean
 permissions: write-all
 jobs:
   check_branches:
