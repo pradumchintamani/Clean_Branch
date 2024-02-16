@@ -1,4 +1,4 @@
-name: Check Branches
+name: Check and Delete Stale Branches
 
 on:
   workflow_dispatch:
@@ -11,69 +11,53 @@ on:
         description: 'Whether to perform a dry run (true/false)'
         required: false
         type: boolean
+
 permissions: write-all
+
 jobs:
   check_branches:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{secrets.GET_ALL}}
+      GH_TOKEN: ${{ secrets.GET_ALL }}
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Run script to check branches
+      id: check_branches_script
       run: |
         username="pradumchintamani"
         repo="Clean_Branch"
         echo -n > output_file.txt
         excluded_branches=()
-          while IFS= read -r line; do
-            excluded_branches+=( "$line" )
-          done < input_file.txt
+        while IFS= read -r line; do
+          excluded_branches+=( "$line" )
+        done < input_file.txt
+        
+        branches=$(gh api repos/$username/$repo/branches -q ".[].name")
+        for branch in $branches; do
+          # Check if the branch is excluded
+          if [[ " ${excluded_branches[@]} " =~ " $branch " ]]; then
+            echo "Excluded branch: $branch"
+            continue
+          fi
           
-          branches=$(gh api repos/$username/$repo/branches -q ".[].name")
-          for branch in $branches; do
-            # Check if the branch is excluded
-            if [[ " ${excluded_branches[@]} " =~ " $branch " ]]; then
-              echo "Excluded branch: $branch"
-              continue
-            fi
-            
-            # If the branch is not excluded, check if it's old enough for deletion
-            commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
-            if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"$INPUT_DAYS_SINCE_LAST_COMMIT days ago" +%s)" ]]; then
-              echo $branch >> output_file.txt
-            fi
-          done
+          # If the branch is not excluded, check if it's old enough for deletion
+          commit_date=$(gh api repos/$username/$repo/commits/$branch -q ".commit.committer.date")
+          if [[ "$(date -d"$commit_date" +%s)" -lt "$(date -d"${{ github.event.inputs.days }} days ago" +%s)" ]]; then
+            echo $branch >> output_file.txt
+          fi
+        done
       env:
         INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
-        GH_TOKEN: ${{secrets.GET_ALL}}
-    - name: Commit artifact changes
-      continue-on-error: true
-      run: |
-              
-              git config --local user.name "GitHub Actions"
-              git config --local user.email "actions@github.com"
-              git add .
-              git commit -m "Add stale branches output"
-              git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
-              git push --set-upstream origin $GITHUB_REF    
-    - name: Persist workspace
-      uses: actions/cache@v4.0.0
+
+    - name: Upload output file as artifact
+      uses: actions/upload-artifact@v4
       with:
-        path: |
-              # ${{ runner.workspace }}/stale_branches_output.txt
-              ${{ runner.workspace }}
-        key: stale-branches-${{ runner.os }}
-  
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4.3.0
-      with:
-          name: stale_branches_output
-          # path: ${{ runner.workspace }}/stale_branches_output.txt
-          path: ${{ runner.workspace }}
-          
+        name: stale_branches_output
+        path: output_file.txt
+
   delete_branches:
     runs-on: ubuntu-latest
     needs: check_branches
@@ -83,9 +67,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Download output file artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: stale_branches_output
+        path: ${{ github.workspace }}
+
     - name: Read branches to delete
       id: read_output_file
-      run: echo ::set-output name=branches::$(cat output_file.txt)
+      run: echo ::set-output name=branches::$(cat ${{ github.workspace }}/output_file.txt)
 
     - name: Delete branches
       run: |
