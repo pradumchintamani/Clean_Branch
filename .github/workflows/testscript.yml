@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Define stale branches
       env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }} # required to run gh cli
+          GH_TOKEN: ${{ secrets.GET_ALL }} # required to run gh cli
           INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
       run: |
         #!/bin/bash
