@@ -25,14 +25,14 @@ jobs:
           INPUT_DAYS_SINCE_LAST_COMMIT: ${{ github.event.inputs.days }}
       run: |
         #!/bin/bash
-        username= "${{github.repository_owner}}" #name of your organization
-        repo= "${{ github.event.repository.name }}"  #name of your repository
+        username="${{github.repository_owner}}" #name of your organization
+        repo="${{ github.event.repository.name }}"  #name of your repository
         echo -n > stale_branches.txt
         excluded_branches=("develop", "main", "master")
           while IFS= read -r line; do
             excluded_branches+=( "$line" )
           done < protect_branches.txt
-          branches= $(gh api repos/$username/$repo/branches -q ".[].name")
+          branches=$(gh api repos/$username/$repo/branches -q ".[].name")
           for branch in $branches; do
             # Check if the branch is excluded
             if [[ " ${excluded_branches[@]} " =~ " $branch " ]]; then
